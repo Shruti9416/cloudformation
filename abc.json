@@ -1,0 +1,72 @@
+{
+    "Resources": {
+      "MySecurityGroup": {
+        "Type": "AWS::EC2::SecurityGroup",
+        "Properties": {
+          "GroupDescription": "Security group",
+          "GroupName": "CF-Demo1",
+          "SecurityGroupIngress": [
+            {
+              "IpProtocol": "tcp",
+              "FromPort": 80,
+              "ToPort": 80,
+              "CidrIp": "0.0.0.0/0"
+            },
+            {
+              "IpProtocol": "tcp",
+              "FromPort": 443,
+              "ToPort": 443,
+              "CidrIp": "0.0.0.0/0"
+            },
+            {
+              "IpProtocol": "tcp",
+              "FromPort": 22,
+              "ToPort": 22,
+              "CidrIp": "0.0.0.0/0"
+            }
+          ]
+        }
+      },
+      "MyEC2Instance": {
+        "Type": "AWS::EC2::Instance",
+        "Properties": {
+          "ImageId": "ami-053b0d53c279acc90",
+          "InstanceType": "t2.micro",
+          "KeyName": "KeyPair",
+          "SecurityGroupIds": [
+            {
+              "Ref": "MySecurityGroup"
+            }
+          ],
+          "UserData": {
+            "Fn::Base64": {
+              "Fn::Join": [
+                "",
+                [
+                  "#!/bin/bash\n",
+                  "apt-get update\n",
+                  "apt-get install -y apache2\n",
+                  "systemctl enable apache2\n",
+                  "systemctl start apache2\n",
+                  "systemctl status apache2",
+                  "echo 'Hello from Shruti' > /var/www/html/index.html\n"
+                ]
+              ]
+            }
+          }
+        }
+      },
+      "MyRDSInstance": {
+        "Type": "AWS::RDS::DBInstance",
+        "Properties": {
+          "DBInstanceIdentifier": "db-data2",
+          "Engine": "mysql",
+          "DBInstanceClass": "db.t2.micro",
+          "MasterUsername": "usr",
+          "MasterUserPassword": "pass12345678",
+          "AllocatedStorage": 20
+        }
+      }
+    }
+  }
+  
